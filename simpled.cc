@@ -1,11 +1,14 @@
+extern "C" { 
 #include "csapp.h"
+}
 #include <iostream>
+#include <string>
 #include <cstdlib>
 #include <map>
 
 int main(int argc, char **argv) {
 	uint32_t secretKey, clientSecretKey, requestType;
-	int listenfd, connfd, port, retVal;
+	int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
 	rio_t rio;
@@ -40,30 +43,55 @@ int main(int argc, char **argv) {
 
 		Rio_readnb(&rio, NULL, 3);	// next 3 bytes are for padding
 
-		if (requestType == 0) {			// SET
+
+	///////////////		SET			///////////////
+
+		if (requestType == 0) {
 			clientReqType = "Set";
 			std::string varName = "", value = "";
 			uint32_t valueLen;
-			ssize_t varNameLen = Rio_readlineb(&rio, &varName, 15); // read variable name until null char, to max len of 15 bytes
-			Rio_readnb(&rio, &valueLen, 4);	// next 4 bytes -> len of var
+			ssize_t varNameLen = Rio_readlineb(&rio, &varName, 16); 		// read variable name until null char, to max len of 15 bytes + (\0)
+			if (varName[varName.size()-1] != '\0') 		// if varName is longer than 15 bytes, transaction failed
+				clientCompletion = "Failure";
+		
+			Rio_readnb(&rio, &valueLen, 4);			// next 4 bytes -> len of var
 			valueLen = ntohl(valueLen);
-			if (valueLen > 100) {	// len can't exceed 100 bytes
-				retVal = -1;
-				Rio_writen(&rio, &ret
-			} else {
-				Rio_readnb(&rio, &value, valueLen); // get var value until EOF to max of valueLen bytes
-				serverVariables[varName] = value; // store value in varName key in map
+			if (valueLen > 100)			// if value is > 100 bytes, return 1 (failure) then 3 bytes of padding
+				clientCompletion = "Failure";
 
-				Rio_writen(connfd, "0123", 4);	// send "0" for success then next 3 bytes random for padding
+			if (Rio_readnb(&rio, &value, valueLen) == valueLen && clientCompletion != "Failure") { 		// if bytes read == valueLen, and not failure
+				serverVariables[varName] = value; 		// store value in varName key in map
+				clientCompletion = "Success";
+				std::string cmd = "export " + varName + "=" + value;
+				system(const_cast<char *>(cmd.c_str());	// user system() here to assign evn variable
+				Rio_writen(connfd, "0123", 4);			// send 0 (success) then 3 bytes for padding
+			} else {		// if didn't read valueLen num of bytes
+				Rio_writen(connfd, "1234", 4);			// send 1 (failure) then 3 bytes for padding
 			}
-		} else if (requestType == 1) {	// GET
+			clientCompletion = VarName + ": " + value;			// print out details, for success or failure
+
+
+	///////////////		GET			///////////////
+	
+		} else if (requestType == 1) {
 			clientReqType = "Get";
 
-		} else if (requestType == 2) {	// DIGEST
+
+	///////////////		DIGEST		///////////////
+
+		} else if (requestType == 2) {
 			clientReqType = "Digest";
-		} else if (requestType == 3) {	// RUN
+
+
+	///////////////		RUN			///////////////
+	
+		} else if (requestType == 3) {
 			clientReqType = "Run";
-		} else {						// INVALID TYPE
+
+
+	///////////////	 INVALID TYPE  ///////////////
+	
+		} else {						
 			itoa(requestType, clientReqType, 10); // req type int->str
 			clientReqType = clientReqType + " : Invalid Type";
 		}	// invalid type
@@ -75,4 +103,5 @@ int main(int argc, char **argv) {
 		Close(connfd);
 
 	}	// while (true)
+	return 0;
 }	// int main()

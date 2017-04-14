@@ -15,20 +15,20 @@ csapp.o: csapp.h csapp.c
 
 clients: ssSet ssGet ssDigest ssRun
 
-simpled: simpled.c csapp.o 
-	gcc $(CFLAGS) simpled.c csapp.o -lpthread -o simpled
+simpled: simpled.cc csapp.o 
+	gcc $(CFLAGS) simpled.cc csapp.o -lpthread -o simpled
 
-ssSet: ssSet.c csapp.o 
-	gcc $(CFLAGS) ssSet.c csapp.o -lpthread -o ssSet
+ssSet: ssSet.cc csapp.o 
+	gcc $(CFLAGS) ssSet.cc csapp.o -lpthread -o ssSet
 
-ssGet: ssGet.c csapp.o 
-	gcc $(CFLAGS) ssGet.c csapp.o -lpthread -o ssGet
+ssGet: ssGet.cc csapp.o 
+	gcc $(CFLAGS) ssGet.cc csapp.o -lpthread -o ssGet
 
-ssDigest: ssDigest.c csapp.o 
-	gcc $(CFLAGS) ssDigest.c csapp.o -lpthread -o ssDigest
+ssDigest: ssDigest.cc csapp.o 
+	gcc $(CFLAGS) ssDigest.cc csapp.o -lpthread -o ssDigest
 
-ssRun: ssRun.c csapp.o 
-	gcc $(CFLAGS) ssRun.c csapp.o -lpthread -o ssRun
+ssRun: ssRun.cc csapp.o 
+	gcc $(CFLAGS) ssRun.cc csapp.o -lpthread -o ssRun
 
 .PHONY: clean
 clean:
