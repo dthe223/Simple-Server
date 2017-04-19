@@ -3,16 +3,18 @@ extern "C" {
 }
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <cstdlib>
 #include <map>
 
 int main(int argc, char **argv) {
-	uint32_t secretKey, clientSecretKey, requestType;
+	uint32_t secretKey, clientSecretKey;
+	uint8_t requestType;
 	int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
 	rio_t rio;
-	std::string clientReqType = clientDetails = clientCompletion = "";
+	std::string clientReqType, clientDetails, clientCompletion;
 	std::map<std::string, std::string> serverVariables;
 
 	if (argc != 3) {
@@ -48,10 +50,10 @@ int main(int argc, char **argv) {
 
 		if (requestType == 0) {
 			clientReqType = "Set";
-			std::string varName = "", value = "";
+			std::string varName = "", value = "", retVal = "";
 			uint32_t valueLen;
 			ssize_t varNameLen = Rio_readlineb(&rio, &varName, 16); 		// read variable name until null char, to max len of 15 bytes + (\0)
-			if (varName[varName.size()-1] != '\0') 		// if varName is longer than 15 bytes, transaction failed
+			if (varName[varName.size()-1] != '\0' && varNameLen > 0) 		// if varName is longer than 15 bytes, transaction failed
 				clientCompletion = "Failure";
 		
 			Rio_readnb(&rio, &valueLen, 4);			// next 4 bytes -> len of var
@@ -63,12 +65,14 @@ int main(int argc, char **argv) {
 				serverVariables[varName] = value; 		// store value in varName key in map
 				clientCompletion = "Success";
 				std::string cmd = "export " + varName + "=" + value;
-				system(const_cast<char *>(cmd.c_str());	// user system() here to assign evn variable
-				Rio_writen(connfd, "0123", 4);			// send 0 (success) then 3 bytes for padding
+				system(const_cast<char *>(cmd.c_str()));	// user system() here to assign evn variable
+				retVal = "0123";
+				Rio_writen(connfd, &retVal, 4);			// send 0 (success) then 3 bytes for padding
 			} else {		// if didn't read valueLen num of bytes
-				Rio_writen(connfd, "1234", 4);			// send 1 (failure) then 3 bytes for padding
+				retVal = "1234";
+				Rio_writen(connfd, &retVal, 4);			// send 1 (failure) then 3 bytes for padding
 			}
-			clientCompletion = VarName + ": " + value;			// print out details, for success or failure
+			clientCompletion = varName + ": " + value;			// print out details, for success or failure
 
 
 	///////////////		GET			///////////////
@@ -92,7 +96,9 @@ int main(int argc, char **argv) {
 	///////////////	 INVALID TYPE  ///////////////
 	
 		} else {						
-			itoa(requestType, clientReqType, 10); // req type int->str
+			std::stringstream convert;	// to convert req type from int to string
+			convert << requestType;
+			clientReqType = convert.str();
 			clientReqType = clientReqType + " : Invalid Type";
 		}	// invalid type
 
