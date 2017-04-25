@@ -23,6 +23,7 @@ si: simpled.cc csapp.o
 
 simpled: simpled.cc csapp.o 
 	g++ $(CFLAGS) simpled.cc csapp.o -lpthread -o simpled
+	@clear
 
 ssS: ssSet.cc csapp.o sserver.o
 	@g++ $(CFLAGS) ssSet.cc sserver.o csapp.o -lpthread -o ssSet

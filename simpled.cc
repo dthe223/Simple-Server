@@ -8,18 +8,24 @@ extern "C" {
 #include <sstream>
 #include <cstdlib>
 
+#define BUFFER 1024
+#define INT_SIZE 4
+#define PAD_SIZE 3
+#define VAR_NAME_MAX 16
+#define VALUE_MAX 100
+#define PROG_REQ_MAX 8
+
 int main(int argc, char **argv) {
-	uint32_t secretKey, clientSecretKey, valueLen;
+	uint32_t secretKey, clientSecretKey, valueLen, port;
 	char requestType;
-	int listenfd, connfd, port;
+	int listenfd, connfd;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
 	rio_t rio;
 	char retValue;
 	char varName[16];
 	std::string clientReqType, clientDetails, clientCompletion, padding, envName, envValue;
-	char pad[3];
-	pad[0] = '1'; pad[1] = '2'; pad[2] = '3';
+	char pad[] = {'1', '2', '3'};
 
 	if (argc != 3) {
 		std::cerr << "Usage: " << argv[0] << " <port> <secretkey>\n";
@@ -50,7 +56,6 @@ int main(int argc, char **argv) {
 		clientCompletion = "Success";
 
 		Rio_readnb(&rio, &requestType, 1);								// read next 1 byte for request type
-		//requestType = ntohl(requestType);
 		Rio_readnb(&rio, pad, 3);										// next 3 bytes are for padding
 
 	///////////////		SET			///////////////
@@ -58,35 +63,34 @@ int main(int argc, char **argv) {
 		if (requestType == 0) {
 			clientReqType = "Set";
 			
-			Rio_readnb(&rio, &varName, 16); 	// read variable name until null char, to max len of 16 bytes
+			Rio_readnb(&rio, &varName, 16); 				// read variable name until null char, to max len of 16 bytes
 			envName = varName;
-			if (envName.size() >= 16)  // don't need to make substr b/c it fails anyway and not added
+			if (envName.size() >= 16)  						// don't need to make substr b/c it fails anyway and not added
 				clientCompletion = "Failure";
 		
-			Rio_readnb(&rio, &valueLen, 4);								// next 4 bytes -> len of var
+			Rio_readnb(&rio, &valueLen, 4);					// next 4 bytes -> len of var
 			valueLen = ntohl(valueLen);
-			if (valueLen > 99)											// if value is > 100 bytes, return 1 (failure) then 3 bytes of padding
+			if (valueLen > 99)								// if value is > 100 bytes, return 1 (failure) then 3 bytes of padding
 				clientCompletion = "Failure";
 			
-			if (clientCompletion != "Failure") {		// if bytes read == valueLen, and not failure
-				char value[1024];
-				Rio_readnb(&rio, &value, valueLen);
+			if (clientCompletion != "Failure") {			// if not failure
+				char value[BUFFER];
+				Rio_readnb(&rio, &value, valueLen);			// read in value
 				envValue = value;
 				clientCompletion = "Success";
 				if (setenv(const_cast<char*>(envName.c_str()),const_cast<char*>(envValue.c_str()),1) != 0) { // if setenv!=0 -> unsuccessful
+					clientCompletion = "Failure";
 					retValue = -1;
-					Rio_writen(connfd, &retValue, 1);
 				} else {
 					retValue = 0;
-					Rio_writen(connfd, &retValue, 1);							// send 0 (success) 
 				}
-			} else {													// if didn't read valueLen num of bytes
+			} else {										// if failed
 				retValue = -1;
-				Rio_writen(connfd, &retValue, 1);						// send 1 (failure)
 			}
-			Rio_writen(connfd, pad, 3);							// send 3 bytes for padding
+			Rio_writen(connfd, &retValue, 1);				// send return value, 0 for success, -1 for failure
+			Rio_writen(connfd, pad, 3);						// send 3 bytes for padding
 
-			clientDetails = varName;					// print out details, for success or failure
+			clientDetails = varName;						// print out details, for success or failure
 
 
 	///////////////		GET			///////////////
@@ -95,8 +99,10 @@ int main(int argc, char **argv) {
 			clientReqType = "Get";
 			Rio_readnb(&rio, &varName, 16);				// read variable name
 			envName = varName;							// varName    char[] -> str
-			if (envName.size() >= 16)					// check to see if longer than max
+			if (envName.size() >= 16) {					// check to see if longer than max
 				clientCompletion = "Failure";
+				envName = envName.substr(0,15);
+			}
 			
 			char* varLocation = getenv(const_cast<char*>(envName.c_str()));
 			if (clientCompletion == "Failure" || varLocation == NULL) {
@@ -190,10 +196,10 @@ int main(int argc, char **argv) {
 			clientReqType = clientReqType + " : Invalid Type";
 		}	// invalid type
 
-		std::cout << "Secret Key = " << clientSecretKey << '\n';		// prints all the connection details
-		std::cout << "Request Type = " << clientReqType << '\n';
-		std::cout << "Detail = " << clientDetails << '\n';
-		std::cout << "Completion = " << clientCompletion << '\n';
+		std::cout << "Secret Key = \t\t" << clientSecretKey << '\n';		// prints all the connection details
+		std::cout << "Request Type = \t\t" << clientReqType << '\n';
+		std::cout << "Detail = \t\t" << clientDetails << '\n';
+		std::cout << "Completion = \t\t" << clientCompletion << '\n';
 		std::cout << "----------------------------------------\n";
 
 		Close(connfd);
