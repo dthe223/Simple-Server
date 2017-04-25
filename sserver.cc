@@ -70,25 +70,25 @@ int simpleGet(std::string host, uint32_t port, uint32_t secretKey, std::string v
 	else 
 		varName += "\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";
 	Rio_writen(clientfd, const_cast<char*>(varName.c_str()), 16);
-
+	
 	//	RECEIVE DATA FROM SERVER //
 	Rio_readnb(&rio, &retValue, 1);
 	Rio_readnb(&rio, pad, 3);
-
-	if (!retValue) {
-		Rio_readnb(&rio, &resultLen, 4);
-		*resultLen = ntohl(*resultLen);
-		if (*resultLen > 100)
-			*resultLen = 100;
+	if (retValue == NULL || retValue != 0) {
+		std::cerr << "FAILED\n";
+		return -1;
+	} else if (retValue == 0) {
+		uint32_t resLen;
+		Rio_readnb(&rio, &resLen, 4);
+		resLen = ntohl(resLen);
+		if (resLen > 100)
+			resLen = 100;
 		char result[BUFFER];
-		Rio_readnb(&rio, &result, *resultLen);
+		Rio_readnb(&rio, &result, resLen);
 		value = result;
 		std::cout << value << '\n';
 		return 0;
 	}
-	
-	std::cout << "FAILED\n";
-	return -1;
 
 }	// int simpleGet()
 

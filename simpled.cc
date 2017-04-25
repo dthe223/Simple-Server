@@ -7,7 +7,6 @@ extern "C" {
 #include <cstring>
 #include <sstream>
 #include <cstdlib>
-#include <map>
 
 int main(int argc, char **argv) {
 	uint32_t secretKey, clientSecretKey, valueLen;
