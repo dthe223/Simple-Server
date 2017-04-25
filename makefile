@@ -1,4 +1,4 @@
-CFLAGS = -Wall
+CFLAGS = -g -Wall
 
 SERVER = simpled
 CLIENTS = ssSet ssGet ssDigest ssRun
@@ -13,25 +13,36 @@ csapp.c:
 
 csapp.o: csapp.h csapp.c
 
+sserver.o: sserver.h sserver.cc
+
 clients: ssSet ssGet ssDigest ssRun
+
+si: simpled.cc csapp.o
+	@clear
+	@g++ $(CFLAGS) simpled.cc csapp.o -lpthread -o simpled
 
 simpled: simpled.cc csapp.o 
 	g++ $(CFLAGS) simpled.cc csapp.o -lpthread -o simpled
 
-ssS: ssSet.cc csapp.o 
-	@g++ $(CFLAGS) ssSet.cc csapp.o -lpthread -o ssSet
+ssS: ssSet.cc csapp.o sserver.o
+	@g++ $(CFLAGS) ssSet.cc sserver.o csapp.o -lpthread -o ssSet
 	clear
 	@./ssSet localhost 5000 1234 var val
 
-ssGet: ssGet.cc csapp.o 
-	g++ $(CFLAGS) ssGet.cc csapp.o -lpthread -o ssGet
+ssSet: ssSet.cc csapp.o sserver.o
+	g++ $(CFLAGS) ssSet.cc sserver.o csapp.o -lpthread -o ssSet
 
-ssDigest: ssDigest.cc csapp.o 
-	g++ $(CFLAGS) ssDigest.cc csapp.o -lpthread -o ssDigest
+ssGet: ssGet.cc csapp.o sserver.o
+	g++ $(CFLAGS) ssGet.cc sserver.o csapp.o -lpthread -o ssGet
+	@clear
 
-ssRun: ssRun.cc csapp.o 
-	g++ $(CFLAGS) ssRun.cc csapp.o -lpthread -o ssRun
+ssDigest: ssDigest.cc csapp.o sserver.o
+	g++ $(CFLAGS) ssDigest.cc sserver.o csapp.o -lpthread -o ssDigest
+
+ssRun: ssRun.cc csapp.o sserver.o
+	g++ $(CFLAGS) ssRun.cc sservero csapp.o -lpthread -o ssRun
+	@clear
 
 .PHONY: clean
 clean:
-	/bin/rm -rf csapp.h csapp.c *.o simpled ssSet ssGet ssDigest ssRun
+	/bin/rm -rf *.o simpled ssSet ssGet ssDigest ssRun

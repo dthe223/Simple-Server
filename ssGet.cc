@@ -5,11 +5,11 @@
 #include <stdlib.h>
 
 int main(int argc, char** argv) {
-	uint32_t secretKey, valueLen, port;
+	uint32_t secretKey, port, resultLength = 0;
 	std::string host, varName, value;
 
-	if (argc != 6) {
-		std::cerr << "Usage: " << argv[0] << " <MachineName> <TCPport> <SecretKey> <variableName> <value>\n";
+	if (argc != 5) {
+		std::cerr << "Usage: " << argv[0] << " <MachineName> <TCPport> <SecretKey> <variableName>\n";
 		exit(1);
 	}
 
@@ -17,10 +17,8 @@ int main(int argc, char** argv) {
 	port = atoi(argv[2]);
 	secretKey = atoi(argv[3]);
 	varName = argv[4];
-	value = argv[5];
-	valueLen = value.length();
 
-	int retVal = simpleSet(host, port, secretKey, varName, value, valueLen);
+	int retVal = simpleGet(host, port, secretKey, varName, value, &resultLength);
 
 	if (!retVal)
 		return 0;
