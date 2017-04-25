@@ -40,7 +40,7 @@ ssDigest: ssDigest.cc csapp.o sserver.o
 	g++ $(CFLAGS) ssDigest.cc sserver.o csapp.o -lpthread -o ssDigest
 
 ssRun: ssRun.cc csapp.o sserver.o
-	g++ $(CFLAGS) ssRun.cc sservero csapp.o -lpthread -o ssRun
+	g++ $(CFLAGS) ssRun.cc sserver.o csapp.o -lpthread -o ssRun
 	@clear
 
 .PHONY: clean
