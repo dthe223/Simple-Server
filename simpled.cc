@@ -117,7 +117,7 @@ int main(int argc, char **argv) {
 
 			if (clientCompletion != "Failure") {		// get value if found
 				clientCompletion = "Success";
-				valueLen = envValue.size();
+				valueLen = envValue.size() - 1;
 				if (valueLen >= 100) {
 					valueLen = 100;
 				}
