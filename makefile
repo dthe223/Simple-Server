@@ -1,7 +1,7 @@
 CFLAGS = -g -Wall
 
 SERVER = simpled
-CLIENTS = ssSet ssGet ssDigest ssRun
+CLIENTS = ssSet ssGet ssRun
 
 all: $(SERVER) $(CLIENTS)
 
@@ -15,7 +15,7 @@ csapp.o: csapp.h csapp.c
 
 sserver.o: sserver.h sserver.cc
 
-clients: ssSet ssGet ssDigest ssRun
+clients: ssSet ssGet ssRun
 
 si: simpled.cc csapp.o
 	@clear
