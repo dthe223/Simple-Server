@@ -170,16 +170,17 @@ int main(int argc, char **argv) {
 					output += temp;
 				}
 				uint32_t strlength = output.size();
-				std::cout << output << '\n';
+				std::cout << output.size() << '\t' << output.length() << '\n';
 				Rio_writen(connfd, &retValue, 1);
 				Rio_writen(connfd, pad, 3);
 				strlength = htonl(strlength);
 				Rio_writen(connfd, &strlength, 4);
 				char* stuff = new char[output.length() +1];
 				std::strcpy(stuff, output.c_str());
-				if (strlength > 99)
+				if (strlength > 99) {
+					stuff[99] = '\0';
 					Rio_writen(connfd, stuff, 100);
-				else
+				} else
 					Rio_writen(connfd, stuff, strlength);
 
 				pclose(fp);
