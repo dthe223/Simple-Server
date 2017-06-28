@@ -55,4 +55,4 @@ The four programs you must write are:
 | uptime | `/usr/bin/uptime` |
   
 </p>  
-   The client prints the result it receives from the server, or failed.
+   The client prints the result it receives from the server, or **failed**.
