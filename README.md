@@ -11,4 +11,4 @@ The programs assumes the following:
 - Machine Names (DNS names or dotted decimal IP addresses) have a maximum length of 40 characters.
 - Data can be either binary or text.
 - Your server does not provide service unless the client includes your server's SecretKey in its requests. The server and the clients get the SecretKey from the command line.
--- The SecretKey is an unsigned integer in the range 0 to 232-1.
+  -- The SecretKey is an unsigned integer in the range 0 to 2[^32]-1.
