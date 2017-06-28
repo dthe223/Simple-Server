@@ -13,13 +13,13 @@ The simple server accepts incoming requests from clients. Each request is in a n
 
 The server prints out the following information for every valid request it receives:
 
-- **Secret key = *SecretKey* **  
+- **Secret key = _SecretKey_**  
    where SecretKey is the secret key contained in the request.
-- Request type = type 
+- **Request type = _type_** 
    where type is one of set, get, digest, run.
-- Detail = detail 
+- **Detail = _detail_** 
    where detail is specific to the particular request type, as shown below.
-- Completion = status 
+- **Completion = _status_** 
    where status is either success or failure.
 If the secret key is wrong, SecretKey line is the only think printed, and the server immediately closes the connection to the client.
 
