@@ -45,10 +45,12 @@ The four programs you must write are:
 - **ssDigest _MachineName TCPport SecretKey value_**  
    **ssDigest** returns the result of this invocation: `sh -c "echo '/bin/hostname' value | /usr/bin/md5sum"`, The result is guaranteed to be 100 bytes or less. The client prints the result it receives from the server, or **failed**.
 - **ssRun _MachineName TCPport SecretKey program_**  
-   **ssRun** takes an program name as its detail. The server runs that program and sends the first 100 bytes of its output back to the client. Only certain programs are valid requests; the others are rejected. The valid programs are:    
+   **ssRun** takes an program name as its detail. The server runs that program and sends the first 100 bytes of its output back to the client. Only certain programs are valid requests; the others are rejected. The valid programs are:  
+  
 | Program | Example Command |
 | :---: | :---: |
 | inet | `/sbin/ifconfig -a` |
 | hosts | `/bin/cat /etc/hosts` |
-| uptime | `/usr/bin/uptime` |
+| uptime | `/usr/bin/uptime` |  
+  
 The client prints the result it receives from the server, or **failed**.
