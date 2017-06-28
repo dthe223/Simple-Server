@@ -13,7 +13,7 @@ The simple server accepts incoming requests from clients. Each request is in a n
 
 The server prints out the following information for every valid request it receives:
 
-- Secret key = SecretKey  
+- **Secret key = *SecretKey* **  
    where SecretKey is the secret key contained in the request.
 - Request type = type 
    where type is one of set, get, digest, run.
