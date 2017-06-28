@@ -54,3 +54,37 @@ The four programs you must write are:
 | uptime | `/usr/bin/uptime` |  
   
 The client prints the result it receives from the server, or **failed**.
+
+# Simple-server Protocol
+
+## Messages from client to server
+
+All messages from the client to the server have this format:  
+- Bytes 0-3: A 4-byte unsigned integer containing _SecretKey_ in network byte order
+- Byte 4: A 1-byte unsigned integer containing the type of request: set (0), get (1), digest (2), run (3).
+- Bytes 5-7: Three bytes of padding, with arbitrary values.  
+The remainder of the bytes are command-specific:  
+- Set request
+  - Bytes 8-23: a null-terminated variable name, no longer than 15 characters.
+  - Bytes 24-27: A 4-byte unsigned integer (in network order) giving the length of the value, which must not exceed 100, including the concluding null (for a string value).
+  - Bytes 28 ..: The value itself. The client need not send any more than the number of bytes required.
+- Get request
+  - Bytes 8-23: a null-terminated variable name, no longer than 15 characters.
+- Digest request
+  - Bytes 8-11: a 4-byte unsigned integer (in network order) giving the length of the value, which must not exceed 100.
+  - Bytes 12 ...: The value itself. The client need not send any more than the number of bytes required.
+- Run request
+  - Byte 8-15: an 8-byte string (null terminated) holding one of the valid program names.
+
+## Messages from server to client
+If a client sends a request with an invalid secret key, the server may close the connection without returning any message at all.
+
+All messages from the server to the client have this format:
+- Byte 0: A 1-byte return code: 0 for success, -1 for failure.
+- Bytes 1-3: Three bytes of padding, with arbitrary values.
+The remainder of the bytes are command-specific:
+- Set response
+  - No further data
+- Get, Digest, and Run response
+  - Bytes 4-7: A 4-byte unsigned integer (in network order) giving the length of the value, which must not exceed 100, including the concluding null (for a string value).
+  - Bytes 8 ..: The value itself. The server need not send any more than the number of bytes required.
