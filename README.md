@@ -43,9 +43,10 @@ The four programs you must write are:
 - **ssGet _MachineName TCPport SecretKey variableName_**  
    **ssGet** takes an environment-variable name as its detail. The server reports the contents of that environment variable, or failure if such a variable is not set. The client prints the contents it receives from the server, or **failed**.
 - **ssDigest _MachineName TCPport SecretKey value_**  
-   **ssDigest** returns the result of this invocation: `sh -c 'echo \`/bin/hostname\` value | /usr/bin/md5sum'`, The result is guaranteed to be 100 bytes or less. The client prints the result it receives from the server, or **failed**.
+   **ssDigest** returns the result of this invocation: `sh -c "echo '/bin/hostname' value | /usr/bin/md5sum"`, The result is guaranteed to be 100 bytes or less. The client prints the result it receives from the server, or **failed**.
 - **ssRun _MachineName TCPport SecretKey program_**  
    **ssRun** takes an program name as its detail. The server runs that program and sends the first 100 bytes of its output back to the client. Only certain programs are valid requests; the others are rejected. The valid programs are:  
+<p align="center">
   
 | Program | Example Command |
 | :---: | :---: |
@@ -53,4 +54,5 @@ The four programs you must write are:
 | hosts | `/bin/cat /etc/hosts` |
 | uptime | `/usr/bin/uptime` |
   
+</p>
    The client prints the result it receives from the server, or failed.
